@@ -7,9 +7,12 @@ import {
   ImageBackground,
   TouchableOpacity,
   Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isKeyboardOpen, setKeyboardOpen] = useState(false);
 
@@ -39,6 +42,11 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLoginPress = () => {
     navigation.navigate("Posts");
+    const user = {
+      email: email,
+      password: password,
+    };
+    console.log(user);
   };
 
   const handleRegisterPress = () => {
@@ -46,58 +54,67 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../src/images/registration.jpg")}
-        style={{
-          flex: 1,
-          resizeMode: "cover",
-          justifyContent: "flex-end",
-        }}
-      >
-        <View
-          style={isKeyboardOpen ? styles.wrapperWithKeyboard : styles.wrapper}
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../src/images/registration.jpg")}
+          style={{
+            flex: 1,
+            resizeMode: "cover",
+            justifyContent: "flex-end",
+          }}
         >
-          <Text style={styles.title}>Увійти</Text>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.input}
-              keyboardType="email-address"
-              placeholder="Адреса електронної пошти"
-            />
-            <View>
+          <View
+            style={isKeyboardOpen ? styles.wrapperWithKeyboard : styles.wrapper}
+          >
+            <Text style={styles.title}>Увійти</Text>
+            <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.input}
-                placeholder="Пароль"
-                secureTextEntry={!showPassword}
+                keyboardType="email-address"
+                placeholder="Адреса електронної пошти"
+                onChangeText={(text) => setEmail(text)}
+                value={email}
               />
+              <View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Пароль"
+                  secureTextEntry={!showPassword}
+                  onChangeText={(text) => setPassword(text)}
+                  value={password}
+                />
+                <TouchableOpacity
+                  style={styles.showPassword}
+                  onPress={togglePasswordVisibility}
+                >
+                  {!showPassword ? (
+                    <Text style={styles.showPasswordText}>Показати</Text>
+                  ) : (
+                    <Text style={styles.showPasswordText}>Сховати</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.btnBright}
+              onPress={handleLoginPress}
+            >
+              <Text style={styles.brightText}>Увійти</Text>
+            </TouchableOpacity>
+            <View style={styles.registerWrapper}>
+              <Text style={styles.registerText}>Немає акаунту? </Text>
               <TouchableOpacity
-                style={styles.showPassword}
-                onPress={togglePasswordVisibility}
+                style={styles.registerBtn}
+                onPress={handleRegisterPress}
               >
-                {!showPassword ? (
-                  <Text style={styles.showPasswordText}>Показати</Text>
-                ) : (
-                  <Text style={styles.showPasswordText}>Сховати</Text>
-                )}
+                <Text style={styles.registerLink}>Зареєструватися</Text>
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity style={styles.btnBright} onPress={handleLoginPress}>
-            <Text style={styles.brightText}>Увійти</Text>
-          </TouchableOpacity>
-          <View style={styles.registerWrapper}>
-            <Text style={styles.registerText}>Немає акаунту? </Text>
-            <TouchableOpacity
-              style={styles.registerBtn}
-              onPress={handleRegisterPress}
-            >
-              <Text style={styles.registerLink}>Зареєструватися</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground>
-    </View>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

@@ -4,27 +4,23 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   ImageBackground,
   Image,
   TouchableOpacity,
   Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
-import { useFonts } from "expo-font";
+import * as ImagePicker from "expo-image-picker";
 
 const RegistrationScreen = ({ navigation }) => {
-  const [fontsLoaded] = useFonts({
-    RobotoRegular: require("../src/assets/fonts/Roboto-Regular.ttf"),
-    RobotoMedium: require("../src/assets/fonts/Roboto-Medium.ttf"),
-  });
-
   const [avatar, setAvatar] = useState(null);
-  //   const [login, setLogin] = useState("");
-  //   const [email, setEmail] = useState("");
-  //   const [password, setPassword] = useState("");
+  const [login, setLogin] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isKeyboardOpen, setKeyboardOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -51,83 +47,118 @@ const RegistrationScreen = ({ navigation }) => {
     setShowPassword(!showPassword);
   };
 
-  const handleUploadAvatar = () => {
-    // code
+  const handleUploadAvatar = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("Доступ до галереї обов'язковий!");
+      return;
+    }
+
+    if (avatar) {
+      setAvatar(null);
+    } else {
+      const pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+      setAvatar(pickerResult.uri);
+    }
   };
 
   const handleLoginPress = () => {
     navigation.navigate("Login");
   };
 
-  const handleUserPress = () => {
+  const handleRegisterPress = () => {
     navigation.navigate("Posts");
+    const user = {
+      login: login,
+      email: email,
+      password: password,
+    };
+    console.log(user);
   };
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../src/images/registration.jpg")}
-        style={{
-          flex: 1,
-          resizeMode: "cover",
-          justifyContent: "flex-end",
-        }}
-      >
-        <View
-          style={isKeyboardOpen ? styles.wrapperWithKeyboard : styles.wrapper}
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../src/images/registration.jpg")}
+          style={{
+            flex: 1,
+            resizeMode: "cover",
+            justifyContent: "flex-end",
+          }}
         >
-          <View style={styles.avatarContainer}>
-            {avatar ? (
-              <Image source={{ uri: avatar }} style={styles.avatar} />
-            ) : (
-              <View style={styles.placeholder} />
-            )}
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleUploadAvatar}
-            >
-              <Icon name="plus" size={18} color="#FF6C00" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.title}>Реєстрація</Text>
-          <View style={styles.inputWrapper}>
-            <TextInput style={styles.input} placeholder="Логін" />
-            <TextInput
-              style={styles.input}
-              keyboardType="email-address"
-              placeholder="Адреса електронної пошти"
-            />
-            <View>
-              <TextInput
-                style={styles.input}
-                placeholder="Пароль"
-                secureTextEntry={!showPassword}
-              />
+          <View
+            style={isKeyboardOpen ? styles.wrapperWithKeyboard : styles.wrapper}
+          >
+            <View style={styles.avatarContainer}>
+              {avatar ? (
+                <Image source={{ uri: avatar }} style={styles.avatar} />
+              ) : (
+                <View style={styles.placeholder} />
+              )}
               <TouchableOpacity
-                style={styles.showPassword}
-                onPress={togglePasswordVisibility}
+                style={
+                  avatar ? [styles.button, styles.buttonClose] : styles.button
+                }
+                onPress={handleUploadAvatar}
               >
-                {!showPassword ? (
-                  <Text style={styles.showPasswordText}>Показати</Text>
+                {avatar ? (
+                  <Icon name="close" size={18} color="#BDBDBD" />
                 ) : (
-                  <Text style={styles.showPasswordText}>Сховати</Text>
+                  <Icon name="plus" size={18} color="#FF6C00" />
                 )}
               </TouchableOpacity>
             </View>
+            <Text style={styles.title}>Реєстрація</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                placeholder="Логін"
+                onChangeText={(text) => setLogin(text)}
+                value={login}
+              />
+              <TextInput
+                style={styles.input}
+                keyboardType="email-address"
+                placeholder="Адреса електронної пошти"
+                onChangeText={(email) => setEmail(email)}
+                value={email}
+              />
+              <View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Пароль"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={(text) => setPassword(text)}
+                />
+                <TouchableOpacity
+                  style={styles.showPassword}
+                  onPress={togglePasswordVisibility}
+                >
+                  {!showPassword ? (
+                    <Text style={styles.showPasswordText}>Показати</Text>
+                  ) : (
+                    <Text style={styles.showPasswordText}>Сховати</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.btnBright}
+              onPress={handleRegisterPress}
+            >
+              <Text style={styles.brightText}>Зареєстуватися</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={handleLoginPress}>
+              <Text style={styles.text}>Вже є акаунт? Увійти</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.btnBright} onPress={handleUserPress}>
-            <Text style={styles.brightText}>Зареєстуватися</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btn} onPress={handleLoginPress}>
-            <Text style={styles.text}>Вже є акаунт? Увійти</Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
-    </View>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -226,6 +257,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     paddingVertical: 2,
   },
+  buttonClose: {
+    borderColor: "#BDBDBD",
+    backgroundColor: "#FFFFFF",
+  },
   buttonText: {
     color: "white",
   },
@@ -239,6 +274,9 @@ const styles = StyleSheet.create({
     textAlign: "right",
     fontSize: 16,
     fontFamily: "RobotoRegular",
+  },
+  inputFocused: {
+    borderColor: "red",
   },
 });
 
