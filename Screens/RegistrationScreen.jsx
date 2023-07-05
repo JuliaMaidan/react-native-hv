@@ -59,8 +59,10 @@ const RegistrationScreen = ({ navigation }) => {
       setAvatar(null);
     } else {
       const pickerResult = await ImagePicker.launchImageLibraryAsync();
-
-      setAvatar(pickerResult.uri);
+      if (!pickerResult.canceled) {
+        const selectedAsset = pickerResult.assets[0];
+        setAvatar(selectedAsset.uri);
+      }
     }
   };
 
@@ -69,13 +71,10 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const handleRegisterPress = () => {
-    navigation.navigate("Posts");
-    const user = {
-      login: login,
-      email: email,
-      password: password,
-    };
-    console.log(user);
+    navigation.navigate("Auth", {
+      screen: "Posts",
+      params: { login: login, email: email, avatar: avatar },
+    });
   };
 
   return (

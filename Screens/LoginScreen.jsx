@@ -41,12 +41,10 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleLoginPress = () => {
-    navigation.navigate("Posts");
-    const user = {
-      email: email,
-      password: password,
-    };
-    console.log(user);
+    navigation.navigate("Auth", {
+      screen: "Posts",
+      params: { email: email },
+    });
   };
 
   const handleRegisterPress = () => {
